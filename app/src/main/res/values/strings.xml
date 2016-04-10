@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">NumberLib</string>
+    <string name="no_data">Нет данных для вывода</string>
+</resources>
