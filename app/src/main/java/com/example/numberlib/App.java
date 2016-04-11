@@ -3,14 +3,13 @@ package com.example.numberlib;
 import android.app.Application;
 import android.content.Context;
 
+import com.example.numberlib.di.component.DaggerNumbersComponent_NumbersAppComponent;
 import com.example.numberlib.di.component.NumbersComponent;
 import com.example.numberlib.di.modules.AppModule;
 
-import javax.inject.Inject;
-
 public class App extends Application {
 
-    @Inject NumbersComponent.NumbersAppComponent appComponent;
+    private static NumbersComponent.NumbersAppComponent appComponent;
 
     public static App get(Context context) {
         return (App) context.getApplicationContext();
@@ -22,14 +21,13 @@ public class App extends Application {
         buildComponent();
     }
 
-    public NumbersComponent.NumbersAppComponent getAppComponent() {
+    public static NumbersComponent.NumbersAppComponent getAppComponent() {
         return appComponent;
     }
 
     public void buildComponent() {
-        appComponent = DaggerNumbersComponent_AppComponent.builder()
+        appComponent = DaggerNumbersComponent_NumbersAppComponent.builder()
                 .appModule(new AppModule(this))
                 .build();
-        appComponent.inject(this);
     }
 }

@@ -1,7 +1,5 @@
 package com.example.numberlib.model;
 
-import android.content.Context;
-
 import com.example.numberlib.App;
 import com.example.numberlib.NumberLib;
 
@@ -15,8 +13,8 @@ public class ModelImpl implements IModel {
 
     @Inject NumberLib numberLib;
 
-    public ModelImpl(Context context) {
-        ((App)getApplication()).getAppComponent().inject(this);
+    public ModelImpl() {
+        App.getAppComponent().inject(this);
     }
 
     @Override

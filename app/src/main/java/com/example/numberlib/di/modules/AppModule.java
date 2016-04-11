@@ -1,6 +1,7 @@
 package com.example.numberlib.di.modules;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.example.numberlib.App;
 import com.example.numberlib.NumberLib;
@@ -8,7 +9,6 @@ import com.example.numberlib.model.IModel;
 import com.example.numberlib.model.ModelImpl;
 import com.example.numberlib.presenter.Presenter;
 import com.example.numberlib.presenter.PresenterImpl;
-import com.example.numberlib.view.IView;
 
 import javax.inject.Singleton;
 
@@ -21,6 +21,12 @@ public class AppModule {
 
     public AppModule(App app) {
         this.app = app;
+    }
+
+    @Provides
+    @Singleton
+    public Context provideContext() {
+        return app.getApplicationContext();
     }
 
     @Provides
@@ -44,7 +50,7 @@ public class AppModule {
 
     @Provides
     @Singleton
-    Presenter providePresenter(IView view) {
-        return new PresenterImpl(view);
+    Presenter providePresenter() {
+        return new PresenterImpl();
     }
 }

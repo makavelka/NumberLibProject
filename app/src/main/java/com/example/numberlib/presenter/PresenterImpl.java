@@ -1,9 +1,10 @@
 package com.example.numberlib.presenter;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import com.example.numberlib.App;
-import com.example.numberlib.model.ModelImpl;
+import com.example.numberlib.model.IModel;
 import com.example.numberlib.view.IView;
 
 import java.io.IOException;
@@ -18,12 +19,8 @@ public class PresenterImpl implements Presenter {
     private ArrayList<String> currentList;
     private IView view;
 
-    @Inject ModelImpl model;
-
     @Inject
-    public PresenterImpl(IView view) {
-        this.view = view;
-    }
+    IModel model;
 
     @Override
     public ArrayList<String> getConvertedData(InputStream stream) throws IOException {
@@ -36,12 +33,13 @@ public class PresenterImpl implements Presenter {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState, IView view) {
         App.getAppComponent().inject(this);
+        this.view = view;
         if (savedInstanceState != null) {
             currentList = (ArrayList<String>) savedInstanceState.getSerializable(BUNDLE_KEY);
             if (!isListEmpty()) {
-                view.showData(currentList);
+                view.showData();
             }
         }
     }
@@ -52,6 +50,17 @@ public class PresenterImpl implements Presenter {
             outState.putSerializable(BUNDLE_KEY, new ArrayList<>(currentList));
         }
 
+    }
+
+    @Inject
+    @Override
+    public InputStream loadStreamFromAssets(Context context){
+        try {
+            return context.getAssets().open("input.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private boolean isListEmpty() {

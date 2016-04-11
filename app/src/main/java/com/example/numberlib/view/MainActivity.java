@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.example.numberlib.App;
 import com.example.numberlib.R;
-import com.example.numberlib.presenter.PresenterImpl;
+import com.example.numberlib.presenter.Presenter;
 import com.example.numberlib.view.adapter.SimpleAdapter;
 
 import java.io.IOException;
@@ -31,7 +31,8 @@ public class MainActivity extends AppCompatActivity implements IView {
     @Bind(R.id.nodata_textView_mainActivity)
     TextView mNoData;
 
-    @Inject PresenterImpl presenter;
+    @Inject
+    Presenter presenter;
     private boolean isNums = false;
 
     @Override
@@ -40,17 +41,10 @@ public class MainActivity extends AppCompatActivity implements IView {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         ((App)getApplication()).getAppComponent().inject(this);
-        presenter.onCreate(savedInstanceState);
+        presenter.onCreate(savedInstanceState, this);
         initToolbar();
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        try {
-//            AssetManager manager = getAssets();
-//            stringNums = c.convertNumsFromFile(manager.open("input.txt"));
-//            nums = c.getNumsFromFile(manager.open("input.txt"));
-//            switchList();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        showData();
     }
 
     private void initToolbar() {
@@ -60,24 +54,44 @@ public class MainActivity extends AppCompatActivity implements IView {
     }
 
     @OnClick(R.id.switch_button_toolbar)
-    public void switchList() throws IOException {
-        InputStream stream = getAssets().open("input.txt");
+    public void switchList() {
         isNums = isNums ? false : true;
-        if (isNums) {
-            presenter.getRawData(stream);
-        } else {
-            presenter.getConvertedData(stream);
-        }
+        showData();
     }
 
     @Override
-    public void showData(ArrayList<String> list) {
-        mNoData.setVisibility(android.view.View.GONE);
-        mRecyclerView.setAdapter(new SimpleAdapter(list));
+    public void showData() {
+        ArrayList<String> list = new ArrayList<>();
+        try {
+            InputStream stream = presenter.loadStreamFromAssets(this);
+            if (isNums) {
+                list = presenter.getRawData(stream);
+            } else {
+                list = presenter.getConvertedData(stream);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (isListEmpty(list)) {
+            mNoData.setVisibility(android.view.View.GONE);
+            mRecyclerView.setAdapter(new SimpleAdapter(list));
+        } else {
+            showEmptyList();
+        }
+    }
+
+    private boolean isListEmpty(ArrayList<String> list) {
+        return list != null || list.size() > 0;
     }
 
     @Override
     public void showEmptyList() {
         mNoData.setVisibility(android.view.View.VISIBLE);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        presenter.onSaveInstanceState(outState);
     }
 }
